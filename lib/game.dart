@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tetris/brick_object_pos.dart';
+import 'package:tetris/brick_shape.dart';
+import 'package:tetris/brick_shape_enum.dart';
+import 'package:tetris/brick_shape_static.dart';
 
 class TetrisGame extends StatefulWidget {
   const TetrisGame({Key? key}) : super(key: key);
@@ -8,6 +12,9 @@ class TetrisGame extends StatefulWidget {
 }
 
 class _TetrisGameState extends State<TetrisGame> {
+  ValueNotifier<List<BrickObjectPos>> brickObjectPosValue =
+      ValueNotifier<List<BrickObjectPos>>(List<BrickObjectPos>.from([]));
+
   @override
   void initState() {
     super.initState();
@@ -73,7 +80,22 @@ class _TetrisGameState extends State<TetrisGame> {
                           Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 40, vertical: 10),
-                            child: Container(),
+                            child: ValueListenableBuilder(
+                                valueListenable: brickObjectPosValue,
+                                builder: (context, List<BrickObjectPos> value,
+                                    child) {
+                                  BrickShapeEnum tempShapeEnum =
+                                      value.isNotEmpty
+                                          ? value.last.shapeEnum
+                                          : BrickShapeEnum.lShape;
+                                  int rotation = value.isNotEmpty
+                                      ? value.last.rotation
+                                      : 0;
+                                  return BrickShape(
+                                      BrickShapeStatic.getListBrickOnEnum(
+                                          tempShapeEnum,
+                                          direction: rotation));
+                                }),
                           ),
                         ],
                       ),
