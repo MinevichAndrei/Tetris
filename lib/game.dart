@@ -3,6 +3,7 @@ import 'package:tetris/brick_object_pos.dart';
 import 'package:tetris/brick_shape.dart';
 import 'package:tetris/brick_shape_enum.dart';
 import 'package:tetris/brick_shape_static.dart';
+import 'package:tetris/tetris_widget.dart';
 
 class TetrisGame extends StatefulWidget {
   const TetrisGame({Key? key}) : super(key: key);
@@ -12,6 +13,7 @@ class TetrisGame extends StatefulWidget {
 }
 
 class _TetrisGameState extends State<TetrisGame> {
+  GlobalKey<TetrisWidgetState> keyGlobal = GlobalKey();
   ValueNotifier<List<BrickObjectPos>> brickObjectPosValue =
       ValueNotifier<List<BrickObjectPos>>(List<BrickObjectPos>.from([]));
 
@@ -55,7 +57,9 @@ class _TetrisGameState extends State<TetrisGame> {
                                     backgroundColor:
                                         MaterialStateColor.resolveWith(
                                             (states) => Colors.red.shade900)),
-                                onPressed: () {},
+                                onPressed: () {
+                                  keyGlobal.currentState!.resetGame();
+                                },
                                 child: Text("Reset"),
                               ),
                               ElevatedButton(
@@ -63,7 +67,9 @@ class _TetrisGameState extends State<TetrisGame> {
                                     backgroundColor:
                                         MaterialStateColor.resolveWith(
                                             (states) => Colors.red.shade900)),
-                                onPressed: () {},
+                                onPressed: () {
+                                  keyGlobal.currentState!.pauseGame();
+                                },
                                 child: Text("Pause"),
                               ),
                             ],
@@ -107,7 +113,17 @@ class _TetrisGameState extends State<TetrisGame> {
                     alignment: Alignment.center,
                     width: double.maxFinite,
                     decoration: BoxDecoration(color: Colors.green),
-                    child: Container(),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return TetrisWidget(constraints.biggest,
+                            key: keyGlobal,
+                            sizePerSquare: sizePerSquare, setNextBrick:
+                                (List<BrickObjectPos> brickObjectPos) {
+                          brickObjectPosValue.value = brickObjectPos;
+                          brickObjectPosValue.notifyListeners();
+                        });
+                      },
+                    ),
                   ),
                 ),
                 Container(
@@ -116,19 +132,23 @@ class _TetrisGameState extends State<TetrisGame> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () => keyGlobal.currentState!
+                            .transformBrick(Offset(-sizePerSquare, 0), false),
                         child: Text("Left"),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () => keyGlobal.currentState!
+                            .transformBrick(Offset(sizePerSquare, 0), false),
                         child: Text("Right"),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () => keyGlobal.currentState!
+                            .transformBrick(Offset(0, sizePerSquare), false),
                         child: Text("Bottom"),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () =>
+                            keyGlobal.currentState!.transformBrick(null, true),
                         child: Text("Rotate"),
                       ),
                     ],
